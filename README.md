@@ -38,6 +38,8 @@
 	  	-o 保存文件名称             请输入文件名称
 	  	--page=具体某一页          请输入想要爬取的具体一页
 	  	--attr=生成文件格式         请输入生成的文件格式 | csv/xlsx
+           ex: python ./GoodsSpider.py -u username -p password -k Python
+	       python ./GoodsSpider.py -u username -p password -k java书籍 --page=4 --attr=xlsx
 	更新：
 		2020-3-27	V1.0	完成淘宝商品爬取
 		2020-3-30	V1.1	修改部分bug
