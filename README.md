@@ -13,7 +13,7 @@
 			3.敬请期待
 		安装：
 			1. pip install -r requirements
-			2. 修改webdriver，具体查看这边文章：https://www.jianshu.com/p/368be2cc6ca1
+			2. 修改webdriver，具体请查看这边文章：https://www.jianshu.com/p/368be2cc6ca1，感谢大佬的分享。
 			3. 或者获取本目录下已经修改好的webdriver 版本V76.0.3809.100（64 位）
 		特点：
 			支持设置爬取速度
