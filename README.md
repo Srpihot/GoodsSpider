@@ -1,6 +1,6 @@
-#
 
-## GoodsSpider
+
+## GoodsSpider V1.1
 
 	测试环境:python3.7
 	项目简介：
@@ -12,10 +12,14 @@
 			2.对比、分析同类商品。
 			3.敬请期待
 		安装：
-			pip install -r requirements
+			1. pip install -r requirements
+			2. 修改webdriver，具体查看这边文章：https://www.jianshu.com/p/368be2cc6ca1
+			3. 或者获取本目录下已经修改好的webdriver 版本V76.0.3809.100（64 位）
 		特点：
 			支持设置爬取速度
 			支持设置爬取页数
+			支持爬取自定义页数
+			支持滑块认证
 	用法：
 		Usage: "usage:GoodsSpider.py [options] arg1"
 	
@@ -32,7 +36,24 @@
 	  	-s 爬取速度, --Speed=爬取速度
 	                        	fast 快 | medium 中等 | slow 慢
 	  	-o 保存文件名称             请输入文件名称
+	  	--page=具体某一页          请输入想要爬取的具体一页
+	  	--attr=生成文件格式         请输入生成的文件格式 | csv/xlsx
+	更新：
+		2020-3-27	V1.0	完成淘宝商品爬取
+		2020-3-30	V1.1	修改部分bug
+							滑块认证方案解决
+							爬取相比以前效率up+
+							添加爬取具体某一页功能 
+							添加生成文件格式功能支持csv与xlsx
+							
+	与我联系：
+		QQ：619443458   备注:GoodsSpider
 ##### 欢迎大家fork与star~  欢迎大家fork与star~  欢迎大家fork与star~
 
 ![](https://i.loli.net/2020/03/27/cKx7ePL5HYalSA4.png)
 
+感谢以下大佬们的打赏：
+
+| 赞助名单 | 赞助费用 | 赞助方式 |
+| :------: | :------: | :------: |
+| sh****0  |  ￥6.66  | 微信红包 |
