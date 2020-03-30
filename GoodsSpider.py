@@ -2,8 +2,8 @@
 """
 author : Srpihot
 github : https://github.com/Srpihot/
-update_time : 2020-03-27
-version : GoodsSpider v1.0
+update_time : 2020-03-30
+version : GoodsSpider v1.1
 """
 
 """
