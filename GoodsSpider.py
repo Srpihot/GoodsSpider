@@ -13,6 +13,7 @@ import re
 import os
 import sys
 import random
+import platform
 import optparse
 from time import sleep
 from bs4 import BeautifulSoup
@@ -25,7 +26,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def Welcome():
-    os.system('cls')
+    sys = platform.system()
+    if sys == "Windows":
+        os.system('cls')
+    else:
+        os.system('clear')
     print("   ______                         __         ______            _        __                ")
     print(" .' ___  |                       |  ]      .' ____ \          (_)      |  ]               ")
     print("/ .'   \_|   .--.    .--.    .--.| |  .--. | (___ \_|_ .--.   __   .--.| | .---.  _ .--.  ")
@@ -45,7 +50,7 @@ class Taobao_Commodity_Spider:
 
         options = webdriver.ChromeOptions()
         #设置无头模式
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         # 不加载图片,加快访问速度
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         # 设置为开发者模式，避免被识别
