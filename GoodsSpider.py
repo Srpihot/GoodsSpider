@@ -1,9 +1,15 @@
 #coding=utf-8
 """
 author : Srpihot
+<<<<<<< HEAD
 github : https://github.com/Srpihot/GoodsSpider
 update_time : 2020-03-31
 version : GoodsSpider v1.2
+=======
+github : https://github.com/Srpihot/
+update_time : 2020-03-30
+version : GoodsSpider v1.1
+>>>>>>> c73702ba57580c8e4e70b62aee1d58b9d017018d
 """
 
 """
