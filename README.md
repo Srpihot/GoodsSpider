@@ -41,11 +41,7 @@
 	       ex: python ./GoodsSpider.py -u username -p password -k Python --site=taobao
 	       python ./GoodsSpider.py -u username -p password -k java书籍 --page=4 --attr=xlsx
 	       python ./GoodsSpider.py -k python书籍 --site=jingdong
-	更新：
-		2020-03-27	V1.0	完成淘宝商品爬取
-		2020-03-30	V1.1	修改部分bug
-           ex: python ./GoodsSpider.py -u username -p password -k Python
-	       python ./GoodsSpider.py -u username -p password -k java书籍 --page=4 --attr=xlsx
+
 	更新：
 		2020-3-27	V1.0	完成淘宝商品爬取
 		2020-3-30	V1.1	修改部分bug
