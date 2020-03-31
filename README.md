@@ -1,5 +1,7 @@
 ## GoodsSpider V1.2
 
+![](https://i.loli.net/2020/03/27/cKx7ePL5HYalSA4.png)
+
 	测试环境:python3.7
 	项目简介：
 		基于selenium的各大电商（淘宝、京东、拼多多等）平台商品爬取。
@@ -62,7 +64,6 @@
 		--site 默认淘宝 必须跟用户名与密码 京东随便
 ##### 欢迎大家fork与star~  欢迎大家fork与star~  欢迎大家fork与star~
 
-![](https://i.loli.net/2020/03/27/cKx7ePL5HYalSA4.png)
 
 感谢以下大佬们的打赏：
 
