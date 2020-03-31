@@ -1,9 +1,9 @@
 #coding=utf-8
 """
 author : Srpihot
-github : https://github.com/Srpihot/
-update_time : 2020-03-27
-version : GoodsSpider v1.0
+github : https://github.com/Srpihot/GoodsSpider
+update_time : 2020-03-31
+version : GoodsSpider v1.2
 """
 
 """
@@ -13,6 +13,7 @@ import re
 import os
 import sys
 import random
+import platform
 import optparse
 from time import sleep
 from bs4 import BeautifulSoup
@@ -25,7 +26,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def Welcome():
-    os.system('cls')
+    sys = platform.system()
+    if sys == "Windows":
+        os.system('cls')
+    else:
+        os.system('clear')
     print("   ______                         __         ______            _        __                ")
     print(" .' ___  |                       |  ]      .' ____ \          (_)      |  ]               ")
     print("/ .'   \_|   .--.    .--.    .--.| |  .--. | (___ \_|_ .--.   __   .--.| | .---.  _ .--.  ")
@@ -38,14 +43,14 @@ def Welcome():
 
 class Taobao_Commodity_Spider:
 
-    def __init__(self, username, password,keywords,Spider_Speed,Save_Filename,get_page,Page_Once):
+    def __init__(self, username, password,keywords,Spider_Speed,Save_Filename,get_page,Page_Once,site):
         """初始化参数"""
         url = 'https://login.taobao.com/member/login.jhtml'
         self.url = url
 
         options = webdriver.ChromeOptions()
         #设置无头模式
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         # 不加载图片,加快访问速度
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         # 设置为开发者模式，避免被识别
@@ -67,6 +72,8 @@ class Taobao_Commodity_Spider:
         self.get_page=get_page
         # 爬取具体的页数
         self.Page_Once=Page_Once
+        # 爬取具体网站分类
+        self.site=site
 
     # 模拟人类的滑动轨迹
     def get_track(self,distance):      # distance为传入的总距离
@@ -164,7 +171,7 @@ class Taobao_Commodity_Spider:
         if self.Spider_Speed == 'slow':
             sleep(2)
 
-    def get_data(self):
+    def get_taobao_goods_data(self):
         with open(self.Save_Filename+'.csv','w',encoding='utf-8') as f:
             f.write("ID,商品ID,商品标题,价格,图片URL,商品URL,商品短URL,销量,是否为天猫店,商店ID,商店名字,商店URL,商店地址,市场价格,促销价格,订单数量,总销售,库存\n")
         
@@ -235,15 +242,16 @@ class Taobao_Commodity_Spider:
                             swipe_button=self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#nc_1_n1z")))  # 等待滑动拖动控件出现
                             print('[/]爬取次数太多拉~遇到滑块解锁~')
                             print('[+]正在模拟人类的滑块解锁~')
-                            self.move_to_gap(swipe_button,self.get_track(1200))
+                            self.move_to_gap(swipe_button,self.get_track(3600))
                             html_huakuang=self.browser.page_source
                             while '哎呀，出错了，点击' in html_huakuang:
                                 print('[-]滑块破解失败~')
                                 print('[+]重新模拟~')
                                 sleep(0.5)
+                                self.browser.switch_to.frame("sufei-dialog-content")
                                 swipe_button=self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#nc_1_n1z")))  # 等待滑动拖动控件出现
                                 self.browser.find_element_by_css_selector('#nocaptcha > div > span > a').click()
-                                self.move_to_gap(swipe_button,self.get_track(1200))
+                                self.move_to_gap(swipe_button,self.get_track(3600))
                             print('[+]模拟成功,开始爬取相关数据~')
                         except Exception as e:
                             print('[-]',e)
@@ -317,13 +325,13 @@ class Taobao_Commodity_Spider:
                     Welcome()
                     print('[+]爬取结束')
                     break
-
-                self.browser.get(url_old)
-                page_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'.J_Input')))
-                page_element.send_keys(Keys.CONTROL, 'a')
-                page_element.send_keys(str(page_i+1))
-                turn_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'.J_Submit')))
-                turn_element.click()
+                else:
+                    self.browser.get(url_old)
+                    page_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'.J_Input')))
+                    page_element.send_keys(Keys.CONTROL, 'a')
+                    page_element.send_keys(str(page_i+1))
+                    turn_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'.J_Submit')))
+                    turn_element.click()
 
 
         except Exception as e:
@@ -333,7 +341,7 @@ class Taobao_Commodity_Spider:
             print("[-]获取数据失败!")
             exit(0)
     
-    def Get_Page_Once(self):
+    def get_taobao_goods_page_once(self):
         with open(self.Save_Filename+'.csv','w',encoding='utf-8') as f:
             f.write("ID,商品ID,商品标题,价格,图片URL,商品URL,商品短URL,销量,是否为天猫店,商店ID,商店名字,商店URL,商店地址,市场价格,促销价格,订单数量,总销售,库存\n")
         
@@ -496,6 +504,327 @@ class Taobao_Commodity_Spider:
             print('[-]',e)
             self.browser.close()
             print("[-]获取数据失败!")
+            exit(0)    
+
+    def get_jingdong_goods_data(self):
+        with open(self.Save_Filename+'.csv','w',encoding='utf-8') as f:
+            f.write("ID,商品ID,商品标题,价格,图片URL,商品URL,商品短URL,销量,商店ID,商店名字,商店URL,商店地址,市场价格,促销价格,订单数量,总销售,库存\n")
+        
+        self.browser.get("https://www.jd.com/")  
+        id_num=0
+        try:
+            #获取输入框焦点
+            input_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'#key')))
+            
+            #获取搜索butten焦点
+            submit_element = self.wait.until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div[4]/div/div[2]/div/div[2]/button')))
+            
+            #输入关键字及搜索内容
+            input_element.send_keys(self.keywords)
+            
+            #点击搜索
+            submit_element.click()
+            
+            Welcome()
+            print('[+]搜索成功~准备爬取~')
+
+            for page_i in range(0,int(self.get_page)+2):
+                
+                #获取本页源码
+                html_add_js = self.browser.page_source
+                
+                #使用BS4进行分析:
+                data_soup=BeautifulSoup(html_add_js,'lxml')
+
+                #获取商品简略信息
+                div_result=data_soup.select('#J_goodsList li')
+                
+                url_new=self.browser.current_url
+
+                if page_i > 1:
+                    for i in range(0,len(div_result)):
+                        id_num+=1
+
+                        #初始化数据
+                        salePrice = 'None'
+                        reservePrice = 'None'
+                        orderCost = 'None'
+                        totalSoldQuantity = 'None'
+                        quantity = 'None'
+
+                        #相关数据爬取
+                        try:
+                            clickUrl =  div_result[i].select('.p-img a')[0].attrs['href']
+                        except Exception as e:
+                            print('[-]',e)
+                        shortLinkUrl =clickUrl
+                        if 'https' not in clickUrl:
+                            clickUrl =  'https:' + clickUrl
+                        try:
+                            picUrl = div_result[i].select('.p-img img')[0].attrs['data-lazy-img']
+                            if 'https' not in picUrl:
+                                picUrl =  'https:' + picUrl
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            Price = div_result[i].select('.p-price i')[0].string
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            auctionId = div_result[i].attrs['data-sku']
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            sold = div_result[i].select('.p-commit a')[0].get_text()
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            title = div_result[i].select('.p-name .promo-words')[0].get_text().strip('\n').strip()
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            shop_id = div_result[i].select('.p-shopnum')[0].attrs['data-verderid']
+                        except:
+                            try:
+                                shop_id = div_result[i].select('.p-shopnum a')[0].attrs['href']
+                                shop_id = re.findall('\d+',shop_id)[0]
+                            except:
+                                shop_id = '1000117165'
+                        try:
+                            shop_link = div_result[i].select('.p-shopnum a')[0].attrs['href']
+                            if 'https' not in shop_link:
+                                shop_link =  'https:' + shop_link
+                        except:
+                            shop_link = 'https://www.jd.com/allSort.aspx'
+                        try:
+                            shop_name = div_result[i].select('.hd-shopname')[0].get_text()
+                        except:
+                            shop_name = '京东自营'
+                        
+                        shop_address = '京东物流'
+                        # print(picUrl,Price,clickUrl,auctionId,sold,title,shop_id,shop_name,shop_address)
+                        
+                        self.browser.get(clickUrl)
+                        can_swipe=random.randint(0,7)
+                        if can_swipe%2==0:
+                            self.swipe_down(1)
+
+                        goods_html_add_js=self.browser.page_source
+                        goods_data_soup=BeautifulSoup(goods_html_add_js,'lxml')
+                        try:
+                            salePrice = goods_data_soup.select('#page_maprice')[0].get_text()
+                            salePrice = re.findall('\d+',salePrice)[0]
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            reservePrice = goods_data_soup.select('#jd-price')[0].get_text()
+                            reservePrice = re.findall('\d+',reservePrice)[0]
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            orderCost = sold
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            totalSoldQuantity = sold
+                        except Exception as e:
+                            print('[-]',e)
+                        try:
+                            quantity = goods_data_soup.select('#J_stock strong')[0].get_text()
+                        except Exception as e:
+                            print('[-]',e)
+
+                        #print(id_num,clickUrl,salePrice,reservePrice,orderCost,totalSoldQuantity,quantity)
+
+                        with open(self.Save_Filename+'.csv','a+',encoding='utf-8') as f:
+                            f.write(str(id_num)+','+auctionId+','+title+','+Price+','+picUrl+','+clickUrl+','+shortLinkUrl+','+sold+','+shop_id+','+shop_name+','+shop_link+','+shop_address+','+salePrice+','+reservePrice+','+orderCost+','+totalSoldQuantity+','+quantity+'\n')
+
+                        Welcome()
+                        print('[+]成功爬取第{0}页第{1}条数据'.format(page_i-1,i+1))
+
+                        if self.Spider_Speed == 'fast':
+                            sleep(0)
+                        if self.Spider_Speed == 'medium':
+                            sleep(2)
+                        if self.Spider_Speed == 'slow':
+                            sleep(5)
+            
+                if int(page_i) == int(self.get_page+1):
+                    Welcome()
+                    print('[+]爬取结束')
+                    break
+                else:
+                    if '&page' not in url_new:
+                        url_base = url_new+'&page='
+                        url_new=url_new+'&page=2'
+                        self.browser.get(url_new)
+                    else:
+                        url_new=url_base+str(page_i*2)
+                        self.browser.get(url_new)
+                        # print(url_new)
+            
+    
+        except Exception as e:
+            Welcome()
+            print('[-]',e)
+            self.browser.close()
+            print("[-]获取数据失败!")
+            exit(0)
+
+    def get_jingdong_goods_page_once(self):
+        with open(self.Save_Filename+'.csv','w',encoding='utf-8') as f:
+            f.write("ID,商品ID,商品标题,价格,图片URL,商品URL,商品短URL,销量,商店ID,商店名字,商店URL,商店地址,市场价格,促销价格,订单数量,总销售,库存\n")
+        
+        self.browser.get("https://www.jd.com/")  
+        id_num=0
+        try:
+            #获取输入框焦点
+            input_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'#key')))
+            
+            #获取搜索butten焦点
+            submit_element = self.wait.until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div[4]/div/div[2]/div/div[2]/button')))
+            
+            #输入关键字及搜索内容
+            input_element.send_keys(self.keywords)
+            
+            #点击搜索
+            submit_element.click()
+            
+            Welcome()
+            print('[+]搜索成功~准备爬取~')
+
+            html_add_js = self.browser.page_source
+
+            url_new=self.browser.current_url
+
+            url_new=url_new+'&page='+str(self.Page_Once*2)
+            
+            self.browser.get(url_new)
+            
+            html_add_js = self.browser.page_source
+            
+            #使用BS4进行分析:
+            data_soup=BeautifulSoup(html_add_js,'lxml')
+
+            #获取商品简略信息
+            div_result=data_soup.select('#J_goodsList li')
+
+            for i in range(0,len(div_result)):
+                id_num+=1
+
+                #初始化数据
+                salePrice = 'None'
+                reservePrice = 'None'
+                orderCost = 'None'
+                totalSoldQuantity = 'None'
+                quantity = 'None'
+
+                #相关数据爬取
+                try:
+                    clickUrl =  div_result[i].select('.p-img a')[0].attrs['href']
+                except Exception as e:
+                    print('[-]',e)
+                shortLinkUrl =clickUrl
+                if 'https' not in clickUrl:
+                    clickUrl =  'https:' + clickUrl
+                try:
+                    picUrl = div_result[i].select('.p-img img')[0].attrs['data-lazy-img']
+                    if 'https' not in picUrl:
+                        picUrl =  'https:' + picUrl
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    Price = div_result[i].select('.p-price i')[0].string
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    auctionId = div_result[i].attrs['data-sku']
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    sold = div_result[i].select('.p-commit a')[0].get_text()
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    title = div_result[i].select('.p-name .promo-words')[0].get_text().strip('\n').strip()
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    shop_id = div_result[i].select('.p-shopnum')[0].attrs['data-verderid']
+                except:
+                    try:
+                        shop_id = div_result[i].select('.p-shopnum a')[0].attrs['href']
+                        shop_id = re.findall('\d+',shop_id)[0]
+                    except:
+                        shop_id = '1000117165'
+                try:
+                    shop_link = div_result[i].select('.p-shopnum a')[0].attrs['href']
+                    if 'https' not in shop_link:
+                        shop_link =  'https:' + shop_link
+                except:
+                    shop_link = 'https://www.jd.com/allSort.aspx'
+                try:
+                    shop_name = div_result[i].select('.hd-shopname')[0].get_text()
+                except:
+                    shop_name = '京东自营'
+                
+                shop_address = '京东物流'
+                # print(picUrl,Price,clickUrl,auctionId,sold,title,shop_id,shop_name,shop_address)
+                
+                self.browser.get(clickUrl)
+                can_swipe=random.randint(0,7)
+                if can_swipe%2==0:
+                    self.swipe_down(1)
+
+                goods_html_add_js=self.browser.page_source
+                goods_data_soup=BeautifulSoup(goods_html_add_js,'lxml')
+                try:
+                    salePrice = goods_data_soup.select('#page_maprice')[0].get_text()
+                    salePrice = re.findall('\d+',salePrice)[0]
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    reservePrice = goods_data_soup.select('#jd-price')[0].get_text()
+                    reservePrice = re.findall('\d+',reservePrice)[0]
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    orderCost = sold
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    totalSoldQuantity = sold
+                except Exception as e:
+                    print('[-]',e)
+                try:
+                    quantity = goods_data_soup.select('#J_stock strong')[0].get_text()
+                except Exception as e:
+                    print('[-]',e)
+
+                # #print(id_num,clickUrl,salePrice,reservePrice,orderCost,totalSoldQuantity,quantity)
+
+                with open(self.Save_Filename+'.csv','a+',encoding='utf-8') as f:
+                    f.write(str(id_num)+','+auctionId+','+title+','+Price+','+picUrl+','+clickUrl+','+shortLinkUrl+','+sold+','+shop_id+','+shop_name+','+shop_link+','+shop_address+','+salePrice+','+reservePrice+','+orderCost+','+totalSoldQuantity+','+quantity+'\n')
+
+                Welcome()
+                print('[+]成功爬取第{0}页第{1}条数据'.format(self.Page_Once,i+1))
+
+                if self.Spider_Speed == 'fast':
+                    sleep(0)
+                if self.Spider_Speed == 'medium':
+                    sleep(2)
+                if self.Spider_Speed == 'slow':
+                    sleep(5)
+
+            Welcome()
+            print('[+]爬取结束')
+            
+    
+        except Exception as e:
+            Welcome()
+            print('[-]',e)
+            self.browser.close()
+            print("[-]获取数据失败!")
             exit(0)
 
 def csv2xlsx(filename):
@@ -518,22 +847,42 @@ if __name__ == "__main__":
     parse.add_option('-g','--getpage',dest='get_page',type='int',metavar='爬取页数',default=3,help='请输入希望爬取的页数 注意:页数越多爬取时间越长')
     parse.add_option('-s','--Speed',dest='Spider_Speed',type='str',metavar='爬取速度',default='medium',help='fast 快 | medium 中等 | slow 慢')
     parse.add_option('-o',dest='Save_Filename',type='str',metavar='保存文件名称',default='Goods',help='请输入文件名称')
-    #parse.add_option('-q','--quantity',dest='quantity',type='int',metavar='爬取的商品数量',default=1,help='请输入想要爬取的商品数量 PS：暂时不可用')
+    parse.add_option('--site',dest='site',type='str',metavar='站点名称',default='taobao',help='请输入想要爬取的站点 | taobao 淘宝 | jingdong 京东')
+    parse.add_option('-q','--quantity',dest='quantity',type='int',metavar='爬取的商品数量',default=0,help='请输入想要爬取的商品数量 PS：暂时不可用')
     parse.add_option('--page',dest='Page_Once',type='int',metavar='具体某一页',help='请输入想要爬取的具体一页')
     parse.add_option('--attr',dest='attr_file',type='str',metavar='生成文件格式',default='csv',help='请输入生成的文件格式 | csv/xlsx')
     Spider_args,args = parse.parse_args()
 
-    if Spider_args.username is None or Spider_args.password is None or Spider_args.keyword is None:
-        Welcome()
-        print('[-]您的输入有误,请使用命令 --help 或者 -h 获得帮助。')
-        exit(0)
+    if Spider_args.username is None or Spider_args.password is None or Spider_args.keyword is None :
+        if Spider_args.site == 'taobao':
+            Welcome()
+            print('[-]您的输入有误,请使用命令 --help 或者 -h 获得帮助。')
+            exit(0)
+        else:
+            pass
 
-    spider = Taobao_Commodity_Spider(Spider_args.username,Spider_args.password,Spider_args.keyword,Spider_args.Spider_Speed,Spider_args.Save_Filename,Spider_args.get_page,Spider_args.Page_Once)
-    spider.landing()
+    spider = Taobao_Commodity_Spider(Spider_args.username,Spider_args.password,Spider_args.keyword,Spider_args.Spider_Speed,Spider_args.Save_Filename,Spider_args.get_page,Spider_args.Page_Once,Spider_args.site)
+    if Spider_args.site == 'taobao':
+        spider.landing()
     if Spider_args.Page_Once is not None:
-            spider.Get_Page_Once()
+        if Spider_args.site == 'taobao':
+            spider.get_taobao_goods_page_once()
+        if Spider_args.site == 'jingdong':
+            spider.get_jingdong_goods_page_once()
     else:
-            spider.get_data()
+        if Spider_args.site == 'taobao':
+            if Spider_args.quantity != 0:
+                Spider_args.get_page = int(Spider_args.quantity / 48)
+                if Spider_args.quantity % 48 != 0:
+                    Spider_args.get_page += 1
+            spider.get_taobao_goods_data()
+
+        if Spider_args.site == 'jingdong':
+            if Spider_args.quantity != 0:
+                Spider_args.get_page = int(Spider_args.quantity / 30)
+                if Spider_args.quantity % 30 != 0:
+                    Spider_args.get_page += 1
+            spider.get_jingdong_goods_data()   
     
     if Spider_args.attr_file == 'xlsx':
         csv2xlsx(Spider_args.Save_Filename)
