@@ -1,3 +1,4 @@
+此项目停止维护，感谢大家。
 ## GoodsSpider V1.2
 
 ![](https://i.loli.net/2020/03/27/cKx7ePL5HYalSA4.png)
